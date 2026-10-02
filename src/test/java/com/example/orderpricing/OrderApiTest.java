@@ -66,4 +66,20 @@ class OrderApiTest {
                 .andExpect(jsonPath("$.membershipDiscount").value(0))
                 .andExpect(jsonPath("$.totalAmount").value(4000));
     }
+
+    @Test
+    void goldCustomerWithRegularAndSaleProducts() throws Exception {
+        order("""
+                {"customerId":"C002","items":[
+                    {"productId":"P001","quantity":1},
+                    {"productId":"P002","quantity":1}
+                ]}
+                """)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.originalSubtotal").value(15000))
+                .andExpect(jsonPath("$.saleDiscountTotal").value(1000))
+                .andExpect(jsonPath("$.subtotalAfterSale").value(14000))
+                .andExpect(jsonPath("$.membershipDiscount").value(1400))
+                .andExpect(jsonPath("$.totalAmount").value(12600));
+    }
 }
