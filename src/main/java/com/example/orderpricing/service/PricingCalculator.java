@@ -29,7 +29,7 @@ public class PricingCalculator {
 
         long membershipDiscount = 0;
         if (rank == CustomerRank.GOLD && totalQuantity >= MEMBERSHIP_MIN_QUANTITY) {
-            membershipDiscount = originalSubtotal * MEMBERSHIP_DISCOUNT_PERCENT / 100;
+            membershipDiscount = subtotalAfterSale * MEMBERSHIP_DISCOUNT_PERCENT / 100;
         }
 
         return new PricingResult(
