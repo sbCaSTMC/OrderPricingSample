@@ -66,4 +66,44 @@ class OrderApiTest {
                 .andExpect(jsonPath("$.membershipDiscount").value(0))
                 .andExpect(jsonPath("$.totalAmount").value(4000));
     }
+
+    @Test
+    void goldCustomerWithRegularAndSaleProducts() throws Exception {
+        // README例: Standard Keyboard(10,000) x1 + Premium Mouse(5,000・20%セール) x1
+        // セール適用後 14,000 に対して会員割引10% = 1,400 → 支払 12,600
+        order("""
+                {"customerId":"C002","items":[{"productId":"P001","quantity":1},{"productId":"P002","quantity":1}]}
+                """)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.originalSubtotal").value(15000))
+                .andExpect(jsonPath("$.saleDiscountTotal").value(1000))
+                .andExpect(jsonPath("$.subtotalAfterSale").value(14000))
+                .andExpect(jsonPath("$.membershipDiscount").value(1400))
+                .andExpect(jsonPath("$.totalAmount").value(12600));
+    }
+
+    @Test
+    void goldCustomerWithMultipleSaleProducts() throws Exception {
+        // Premium Mouse x2: セール適用後 8,000 に対して会員割引10% = 800 → 支払 7,200
+        order("""
+                {"customerId":"C002","items":[{"productId":"P002","quantity":2}]}
+                """)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.originalSubtotal").value(10000))
+                .andExpect(jsonPath("$.saleDiscountTotal").value(2000))
+                .andExpect(jsonPath("$.subtotalAfterSale").value(8000))
+                .andExpect(jsonPath("$.membershipDiscount").value(800))
+                .andExpect(jsonPath("$.totalAmount").value(7200));
+    }
+
+    @Test
+    void regularCustomerWithRegularAndSaleProducts() throws Exception {
+        order("""
+                {"customerId":"C001","items":[{"productId":"P001","quantity":1},{"productId":"P002","quantity":1}]}
+                """)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.saleDiscountTotal").value(1000))
+                .andExpect(jsonPath("$.membershipDiscount").value(0))
+                .andExpect(jsonPath("$.totalAmount").value(14000));
+    }
 }
